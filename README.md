@@ -1,5 +1,7 @@
 # Babashka paypal transactions download and classify
 
+set of scripts to download transactions from paypal and process these with classification function.
+
 ## Usage
 Store paypal credentials in environment variables
 

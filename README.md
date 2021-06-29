@@ -15,7 +15,7 @@ saves paypal.json for the further processing
 bb repository.clj
 ```
 
-processes paypal.json and populates paypal.sqlite3 database
+processes paypal.json and populates paypal.sqlite3 database with classified categories
 
 
 ### TODO

@@ -13,14 +13,14 @@
 ;; (require '[honeysql.core :as sql]
 ;;          '[honeysql.helpers :as helpers])
 
-(def insert
-  (-> (helpers/insert-into :paypal)
-      (helpers/columns :id :name :category)
-      (helpers/values
-       (mapv #(vector (key %)
-                      (:name (val %))
-                      (:category (val %))) r/classified-transactions))
-      sql/format))
+;; (def insert
+;;   (-> (helpers/insert-into :paypal)
+;;       (helpers/columns :id :name :category)
+;;       (helpers/values
+;;        (mapv #(vector (key %)
+;;                       (:name (val %))
+;;                       (:category (val %))) r/classified-transactions))
+;;       sql/format))
 
 ;; (sqlite/execute! "foo.db" insert)
 
@@ -34,7 +34,6 @@
                    (:category (val %))) r/classified-transactions))
    (sql/format)
    )
-  
 
   (doseq [statement r/classified-transactions]
     (let [{:keys [category name]} (val statement)]

@@ -15,8 +15,9 @@
 (def token
   (get
    (json/parse-string (:body (curl/post paypal-api-auth {:basic-auth [username password]
-                                                    :form-params {"grant_type" "client_credentials"}
-                                                    }))) "access_token"))
+                                                         :form-params {"grant_type" "client_credentials"}
+                                                         })))
+   "access_token"))
 ;; (curl/post paypal-api {:headers {"Accept" "application/json"}
 ;;                        :basic-auth [username password]
 ;;                        :form-params {"grant_type" "client_credentials"}

@@ -12,13 +12,19 @@
   [{:keys [transaction_info]}]
   (get transaction_info :bank_reference_id))
 
-(defn get-paypal-ref-id [{:keys [transaction_info]}]
+(defn get-paypal-ref-id
+  "retrieve paypal transaction reference"
+  [{:keys [transaction_info]}]
   (get transaction_info :paypal_reference_id))
 
-(defn get-bank-ref-id [{:keys [transaction_info]}]
+(defn get-bank-ref-id
+  "retrieve bank transaction reference"
+  [{:keys [transaction_info]}]
   (get transaction_info :bank_reference_id))
 
-(defn index-transactions [transactions index-field]
+(defn index-transactions
+  "creates map with index using index-field"
+  [transactions index-field]
   (into {}
         (map #(hash-map (get-in % [:transaction_info index-field]) %) transactions)))
 

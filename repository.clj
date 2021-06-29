@@ -3,7 +3,7 @@
    ;; [babashka.deps :as deps]
    [babashka.pods :as pods]
    [downloader :as crl]
-   [r :as r]))
+   [classifier :as classifier]))
 
 ;; (deps/add-deps '{:deps {honeysql/honeysql {:mvn/version "1.0.444"}}})
 
@@ -31,21 +31,19 @@
    (helpers/values
     (mapv #(vector (key %)
                    (:name (val %))
-                   (:category (val %))) r/classified-transactions))
-   (sql/format)
-   )
+                   (:category (val %))) classifier/classified-transactions))
+   (sql/format))
+)
 
-  (doseq [statement r/classified-transactions]
-    (let [{:keys [category name]} (val statement)]
-      (sqlite/execute! "paypal.sqlite3"
-                       ["insert or replace into paypal (id, name, category) values (?,?,?)"
-                        (key statement)
-                        name
-                        category
-                        ]))))
+(doseq [statement classifier/classified-transactions]
+  (let [{:keys [category name]} (val statement)]
+    (sqlite/execute! "paypal.sqlite3"
+                     ["insert or replace into paypal (id, name, category) values (?,?,?)"
+                      (key statement)
+                      name
+                      category])))
 
-
-(crl/get-balance crl/token "2021-04-01T00:00:00-0200" "2021-04-30T23:59:00-0200")
+;; (crl/get-balance crl/token "2021-04-01T00:00:00-0200" "2021-04-30T23:59:00-0200")
 
 ;; (def now (java.time.ZonedDateTime/now))
 

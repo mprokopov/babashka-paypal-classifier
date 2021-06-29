@@ -31,5 +31,5 @@
                                                            "end_date" end_date
                                                            "fields" "payer_info"}})))
 
-(spit "t.json"
+(spit "paypal.json"
       (get-balance token "2021-04-01T00:00:00-0200" "2021-04-30T23:59:00-0200"))

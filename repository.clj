@@ -38,7 +38,7 @@
 
   (doseq [statement r/classified-transactions]
     (let [{:keys [category name]} (val statement)]
-      (sqlite/execute! "foo.db"
+      (sqlite/execute! "paypal.sqlite3"
                        ["insert or replace into paypal (id, name, category) values (?,?,?)"
                         (key statement)
                         name

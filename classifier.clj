@@ -2,7 +2,7 @@
   (:require [cheshire.core :as json]))
 
 (def jsonObj
-  (json/parse-string (slurp "t.json") true))
+  (json/parse-string (slurp "paypal.json") true))
 
 (def transactions
   (get jsonObj :transaction_details))

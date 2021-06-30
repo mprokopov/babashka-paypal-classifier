@@ -1,8 +1,10 @@
 #!/usr/local/bin/bb
-(ns downloader)
+(ns downloader
+  (:require [babashka.curl :as curl]
+            [cheshire.core :as json]))
 
-(require '[babashka.curl :as curl])
-(require '[cheshire.core :as json])
+;; (require '[babashka.curl :as curl])
+;; (require '[cheshire.core :as json])
 
 (def username (System/getenv "PAYPAL_USERNAME"))
 

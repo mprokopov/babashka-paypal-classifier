@@ -3,14 +3,17 @@
   (:require
    ;; [babashka.deps :as deps]
    [babashka.pods :as pods]
-   [downloader :as crl]
+   [clojure.string :as string]
+   [clojure.tools.cli :refer [parse-opts]]
+   ;; [downloader :as crl]
+   [log :as logger]
    [classifier :as classifier]))
 
 ;; (deps/add-deps '{:deps {honeysql/honeysql {:mvn/version "1.0.444"}}})
 
 (pods/load-pod 'org.babashka/go-sqlite3 "0.0.1")
 (require '[pod.babashka.go-sqlite3 :as sqlite])
-;(require '[downloader :as downloader])
+                                        ;(require '[downloader :as downloader])
 
 ;; (require '[honeysql.core :as sql]
 ;;          '[honeysql.helpers :as helpers])
@@ -26,7 +29,45 @@
 
 ;; (sqlite/execute! "foo.db" insert)
 
+(defn create-table [target-file]
+  (sqlite/execute! target-file ["create table paypal (bank_ref_id TEXT, name TEXT, category TEXT)"]))
+
+(defn save-statements [target-file statements]
+  (doseq [statement statements]
+    (let [{:keys [category name]} (val statement)]
+      (logger/log "parsed statement " statement)
+      (sqlite/execute! target-file
+                       ["insert or replace into paypal (bank_ref_id, name, category) values (?,?,?)"
+                        (key statement)
+                        name
+                        category])))
+  (logger/log (format "Target DB %s" target-file)))
+
+(def cli-options
+  [["-o" "--out file" "output DB"
+    :default "paypal2.sqlite3"]
+   ["-h" "--help"]])
+
+(defn usage [options-summary]
+  (->> ["Paypal transactions classifier"
+        ""
+        "Usage: repository.clj [options]"
+        ""
+        "Options:"
+        options-summary
+        ""
+        "Please refer to the manual page for more information."]
+       (string/join \newline)))
+
+(let [{:keys [options summary]} (parse-opts *command-line-args* cli-options)
+      {:keys [out help]} options]
+  (if help
+    (println (usage summary))
+    (save-statements out classifier/classified-transactions)))
+
 (comment
+  (parse-opts ["aaa" "-h"] cli-options)
+
   (->
    (helpers/insert-into :paypal)
    (helpers/columns :id :name :category)
@@ -35,45 +76,4 @@
                    (:name (val %))
                    (:category (val %))) classifier/classified-transactions))
    (sql/format))
-)
-
-(doseq [statement classifier/classified-transactions]
-  (let [{:keys [category name]} (val statement)]
-    (sqlite/execute! "paypal.sqlite3"
-                     ["insert or replace into paypal (id, name, category) values (?,?,?)"
-                      (key statement)
-                      name
-                      category])))
-
-;; (crl/get-balance crl/token "2021-04-01T00:00:00-0200" "2021-04-30T23:59:00-0200")
-
-;; (def now (java.time.ZonedDateTime/now))
-
-;; (java.time.LocalDateTime/parse "2021-05-01T00:00:00")
-
-;; (.format java.time.format.DateTimeFormatter/ISO_OFFSET_DATE_TIME now)
-
-;; (->
-;;  (java.time.LocalDate/of 2021 05 02)
-;;  (.with (java.time.temporal.TemporalAdjusters/firstDayOfMonth)))
-
-;; (->
-;;  (java.time.LocalDate/of 2021 06 02)
-;;  (.with (java.time.temporal.TemporalAdjusters/firstDayOfMonth)))
-
-;; (->
-;;  (java.time.LocalDate/of 2021 05 02)
-;;  (.with (java.time.temporal.TemporalAdjusters/lastDayOfMonth)))
-
-;; (def now (java.time.LocalDateTime/now))
-
-;; (-> now
-;;     (.with (java.time.temporal.TemporalAdjusters/firstDayOfMonth))
-;;     (.with (java.time.LocalTime/MIN)))
-
-;; (-> now
-;;     (.with (java.time.temporal.TemporalAdjusters/lastDayOfMonth))
-;;     (.with (java.time.LocalTime/MAX))
-;;     (.format java.time.format.DateTimeFormatter/ISO_OFFSET_DATE_TIME)
-;;     )
-
+  )

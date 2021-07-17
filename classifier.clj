@@ -1,5 +1,8 @@
+#!/usr/local/bin/bb
 (ns classifier
-  (:require [cheshire.core :as json]))
+  (:require [cheshire.core :as json]
+            [clojure.java.io :as io]
+            [clojure.data.csv :as csv]))
 
 (def jsonObj
   (json/parse-string (slurp "paypal.json") true))
@@ -59,29 +62,17 @@
 ;; (get-payer-name
 ;;  (corresponding-transaction "1013425445539"))
 
-(def classifier {"Cornelsen Verlag GmbH" "Lena:Courses:Books"
-                 "YOOX NET-A-PORTER GROUP S.P.A." "Lena:Clothes"
-                 "YourCar GmbH" "Car"})
-
-;; (classifier
-;;  (get-payer-name
-;;   (corresponding-transaction "1012978278132")))
-
-;; (get-payer-name (corresponding-transaction "1013272375403"))
+(def classifier
+  (into {}
+        (with-open [reader (io/reader (io/file "categories.csv"))]
+          (doall
+           (csv/read-csv reader)))))
 
 (defn classify [id]
   ;; {:pre [(assert id)]}
   (classifier
    (get-payer-name
     (corresponding-transaction id))))
-
-;; (remove nil? (vals bank-transactions))
-
-;; (map #(classify (get-bank-ref-id %)) (remove nil? (vals bank-transactions)))
-
-;; (map #(get-bank-ref-id %) (remove nil? (vals bank-transactions)))
-
-;; (keys bank-transactions)
 
 (defn classifier-mapper [id]
   (hash-map id
@@ -99,3 +90,4 @@
 
 (let [[id] *command-line-args*]
   (prn (classified-transactions id)))
+
